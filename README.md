@@ -10,20 +10,32 @@ TODO: Delete this and the text above, and describe your gem
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'auth'
+gem "auth", "~> 0.1", git: "https://github.com/idea-fragments/auth"
 ```
 
 And then execute:
 
     $ bundle install
 
-Or install it yourself as:
-
-    $ gem install auth
-
 ## Usage
 
-TODO: Write usage instructions here
+The gem will need to be required in your code. Since the gem is loaded from a git repo, you'll need to require bundler/setup before requiring the gem.
+
+```ruby
+require "bundler/setup"
+require "auth"
+```
+
+Create a file in `config/initializers` called `auth.rb` and add the following. Be sure to set the variables to the values you need for your project.
+```ruby
+Auth.access_token_ttl_minutes = 5
+Auth.email_confirmation_ttl_days = 5
+Auth.invite_ttl_days = 5
+Auth.refresh_token_ttl_days = 5
+Auth.jwt_signing_algorithm = "<your hashing algorithm>"
+Auth.jwt_secret = "<your secret key>"
+```
+
 
 ## Development
 
