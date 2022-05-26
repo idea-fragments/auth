@@ -6,7 +6,7 @@ RSpec.describe Auth::TokenBlacklist do
   before do
     Timecop.freeze
     expect(Jwt::TokenTtlCalculator).to receive(:call).with(token)
-                                                     .and_return duration
+      .and_return duration
     Auth::TokenBlacklistWriter.call(token)
   end
 
