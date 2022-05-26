@@ -8,6 +8,6 @@ RSpec.describe Auth::TokenBlacklistWriter do
   it "Adds given token to a blacklist redis for given duration" do
     expect { Auth::TokenBlacklistWriter.call(token) }
       .to change { Auth.redis.get(key) }.from(nil).to(token)
-        .and change { Auth.redis.ttl(key) }.from(-2).to(TimeHelper.minutes(ttl))
+                                        .and change { Auth.redis.ttl(key) }.from(-2).to(TimeHelper.minutes(ttl))
   end
 end

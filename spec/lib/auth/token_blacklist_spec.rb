@@ -4,7 +4,10 @@ RSpec.describe Auth::TokenBlacklist do
   let(:duration) { 100 }
 
   before do
-    Auth::TokenBlacklistWriter.call(token, duration)
+    Timecop.freeze
+    expect(Jwt::TokenTtlCalculator).to receive(:call).with(token)
+                                                     .and_return duration
+    Auth::TokenBlacklistWriter.call(token)
   end
 
   it "Confirms that token is in Blacklist" do
