@@ -36,6 +36,11 @@ Auth.jwt_signing_algorithm = "<your hashing algorithm>"
 Auth.jwt_secret = "<your secret key>"
 ```
 
+This gem relies on Redis. You'll need to provide a copy of a redis instance from the `redis` gem, found here: https://github.com/redis/redis-rb
+```ruby
+Auth.redis = your redis instance
+```
+
 
 ## Development
 
