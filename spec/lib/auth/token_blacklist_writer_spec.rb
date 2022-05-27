@@ -18,7 +18,7 @@ RSpec.describe Auth::TokenBlacklistWriter do
     end
 
     it "Will not blacklist the token" do
-      # expect(Auth.redis).to_not receive(:set)
+      expect(Auth.redis).to_not receive(:set)
 
       Auth::TokenBlacklistWriter.call(token)
       expect(Auth.redis.get(key)).to be_nil

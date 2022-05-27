@@ -12,13 +12,15 @@ class Auth::ClaimsReader < Service
     end
   end
 
-  def self.call(token, verify_sig: true)
-    new(token, verify_sig).call
+  def self.call(token, expiration_leeway: 0, verify_sig: true)
+    new(token, expiration_leeway, verify_sig).call
   end
 
   def call
     ensure_token_not_blacklisted
-    claims = Jwt::Decoder.call(token, verify_sig: verify_sig)
+    claims = Jwt::Decoder.call(
+      token, exp_leeway: expiration_leeway, verify_sig: verify_sig
+    )
     raise Auth::InvalidClaimsError unless claims.key?(:dat)
 
     claims[:dat]
@@ -26,14 +28,15 @@ class Auth::ClaimsReader < Service
 
   private
 
-  attr_reader :token, :verify_sig
+  attr_accessor :expiration_leeway, :token, :verify_sig
 
   def ensure_token_not_blacklisted
     raise AlreadyUsedError if Auth::TokenBlacklist.contains?(token)
   end
 
-  def initialize(token, verify_sig)
-    @token = token
-    @verify_sig = verify_sig
+  def initialize(token, expiration_leeway, verify_sig)
+    self.expiration_leeway = expiration_leeway
+    self.token = token
+    self.verify_sig = verify_sig
   end
 end
