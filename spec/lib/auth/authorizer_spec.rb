@@ -27,6 +27,7 @@ RSpec.describe Auth::Authorizer do
     })
 
     expect(Jwt::Decoder.call(refresh_token)).to include({
+      dat: { access_token: access_token },
       exp: TimeHelper.add_days(7).to_i
     })
   end
