@@ -10,4 +10,18 @@ RSpec.describe Auth::TokenBlacklistWriter do
       .to change { Auth.redis.get(key) }.from(nil).to(token)
       .and change { Auth.redis.ttl(key) }.from(-2).to(TimeHelper.minutes(ttl))
   end
+
+  context "If the token is already expired" do
+    before do
+      token
+      Timecop.freeze TimeHelper.add_minutes(ttl)
+    end
+
+    it "Will not blacklist the token" do
+      # expect(Auth.redis).to_not receive(:set)
+
+      Auth::TokenBlacklistWriter.call(token)
+      expect(Auth.redis.get(key)).to be_nil
+    end
+  end
 end

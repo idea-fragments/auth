@@ -5,9 +5,7 @@ class Auth::TokenBlacklistWriter
     ttl = Jwt::TokenTtlCalculator.call(token)
 
     Auth.redis.set(
-      Auth.blacklist_key_for_token(token),
-      token,
-      ex: ttl
-    )
+      Auth.blacklist_key_for_token(token), token, ex: ttl
+    ) if ttl.positive?
   end
 end
