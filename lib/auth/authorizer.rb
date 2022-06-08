@@ -8,7 +8,7 @@ class Auth::Authorizer
     })
 
     refresh_token = Jwt::Encoder.call({
-      dat: { access_token: access_token },
+      dat: user_info,
       exp: Auth.refresh_token_expiration.to_i
     })
 
