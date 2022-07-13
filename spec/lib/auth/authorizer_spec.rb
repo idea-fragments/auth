@@ -18,6 +18,7 @@ RSpec.describe Auth::Authorizer do
     refresh_token = tokens[:refresh_token]
 
     expect(Jwt::Decoder.call(access_token)).to include({
+      action: "authentication",
       dat: {
         id: user[:id],
         first_name: user[:first_name],
@@ -27,6 +28,7 @@ RSpec.describe Auth::Authorizer do
     })
 
     expect(Jwt::Decoder.call(refresh_token)).to include({
+      action: "authentication_refresh",
       dat: {
         id: user[:id],
         first_name: user[:first_name],
@@ -50,6 +52,7 @@ RSpec.describe Auth::Authorizer do
       access_token = tokens[:access_token]
 
       expect(Jwt::Decoder.call(access_token)).to include({
+        action: "authentication",
         dat: {
           id: user[:id],
           first_name: user[:first_name],

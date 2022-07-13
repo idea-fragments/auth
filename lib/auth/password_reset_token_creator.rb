@@ -3,8 +3,9 @@
 class Auth::PasswordResetTokenCreator
   def self.call(user_id)
     Jwt::Encoder.call({
-      exp: Auth::Auth.password_reset_expiration.to_i,
-      dat: { user_id: user_id }
+      action: Auth::TOKEN_ACTION_PASSWORD_RESET,
+      dat: { id: user_id },
+      exp: Auth.password_reset_expiration.to_i,
     })
   end
 end

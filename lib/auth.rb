@@ -5,21 +5,28 @@ require "bundler/setup"
 require "idea_fragments_jwt"
 
 module Auth
-  class Auth::InvalidClaimsError < StandardError; end
-  class Auth::TokenAlreadyUsedError < StandardError; end
-  class Auth::TokenExpiredError < StandardError; end
+  class InvalidClaimsError < StandardError; end
+  class TokenAlreadyUsedError < StandardError; end
+  class TokenExpiredError < StandardError; end
+
+  TOKEN_ACTION_AUTHENTICATION = "authentication"
+  TOKEN_ACTION_AUTHENTICATION_REFRESH = "authentication_refresh"
+  TOKEN_ACTION_EMAIL_CONFIRMATION = "email_confirmation"
+  TOKEN_ACTION_PASSWORD_RESET = "password_reset"
+  TOKEN_ACTION_PASSWORDLESS_LOGIN = "passwordless_login"
 
   class << self
     attr_accessor :access_token_ttl_minutes,
                   :email_confirmation_ttl_days,
                   :invite_ttl_days,
                   :password_reset_ttl_days,
+                  :passwordless_login_ttl_minutes,
                   :redis,
                   :refresh_token_ttl_days
   end
 
   def self.access_token_expiration
-    Time.now + access_token_ttl_minutes * 60
+    TimeHelper.add_minutes(access_token_ttl_minutes)
   end
 
   def self.blacklist_key_for_token(token)
@@ -52,6 +59,10 @@ module Auth
 
   def self.password_reset_expiration
     TimeHelper.add_days(password_reset_ttl_days)
+  end
+
+  def self.passwordless_login_expiration
+    TimeHelper.add_minutes(passwordless_login_ttl_minutes)
   end
 
   def self.refresh_token_expiration

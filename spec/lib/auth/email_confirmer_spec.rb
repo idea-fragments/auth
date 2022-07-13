@@ -2,7 +2,7 @@ RSpec.describe Auth::EmailConfirmer do
   let(:user) { double(id: 323, email: "some@meila.com", email_confirmed?: false) }
   let(:user_finder) { ->(_id, _claims) { user } }
   let(:callback) { ->(_user) { user } }
-  let(:token) { Auth::EmailTokenCreator.call(user) }
+  let(:token) { Auth::EmailTokenCreator.call(user.id, user.email) }
 
   let(:confirm_email) do
     Auth::EmailConfirmer.call(
