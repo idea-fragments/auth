@@ -31,6 +31,8 @@ RSpec.configure do |config|
     Auth.access_token_ttl_minutes = 10
     Auth.email_confirmation_ttl_days = 2
     Auth.invite_ttl_days = 7
+    Auth.password_reset_ttl_days = 2
+    Auth.passwordless_login_ttl_minutes = 30
     Auth.refresh_token_ttl_days = 7
     Auth.jwt_signing_algorithm = "HS512"
     Auth.jwt_secret = "omg the secret"

@@ -9,12 +9,17 @@ RSpec.describe Auth do
     expect(Auth::VERSION).not_to be nil
   end
 
-  describe "#access_token_expiration" do
-    it "returns the access_token_tll minutes from now" do
-      Auth.access_token_ttl_minutes = 10
-      expect(Auth.access_token_expiration).to eq(Time.new(2022, 1, 30, 23, 10, 20))
-      Auth.access_token_ttl_minutes = 15
-      expect(Auth.access_token_expiration).to eq(Time.new(2022, 1, 30, 23, 15, 20))
+  [
+    [:access_token_expiration, :access_token_ttl_minutes],
+    [:passwordless_login_expiration, :passwordless_login_ttl_minutes],
+  ].each do |method, ttl_minutes|
+    describe "##{method}" do
+      it "returns the #{ttl_minutes} days from now" do
+        Auth.public_send("#{ttl_minutes}=", 10)
+        expect(Auth.public_send(method)).to eq(Time.new(2022, 1, 30, 23, 10, 20))
+        Auth.public_send("#{ttl_minutes}=", 15)
+        expect(Auth.public_send(method)).to eq(Time.new(2022, 1, 30, 23, 15, 20))
+      end
     end
   end
 
