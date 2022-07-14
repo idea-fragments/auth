@@ -12,6 +12,7 @@ module Auth
   TOKEN_ACTION_AUTHENTICATION = "authentication"
   TOKEN_ACTION_AUTHENTICATION_REFRESH = "authentication_refresh"
   TOKEN_ACTION_EMAIL_CONFIRMATION = "email_confirmation"
+  TOKEN_ACTION_INVITE = "invite"
   TOKEN_ACTION_PASSWORD_RESET = "password_reset"
   TOKEN_ACTION_PASSWORDLESS_LOGIN = "passwordless_login"
 
