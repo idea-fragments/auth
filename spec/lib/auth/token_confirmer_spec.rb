@@ -8,7 +8,10 @@ RSpec.describe Auth::TokenConfirmer do
 
   let(:confirm_token) do
     Auth::TokenConfirmer.call(
-      token, record_finder: record_finder, callback: callback
+      token,
+      action: Auth::TOKEN_ACTION_INVITE,
+      record_finder: record_finder,
+      callback: callback
     )
   end
 

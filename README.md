@@ -112,6 +112,7 @@ Auth::EmailConfirmer.call(
 
 Auth::TokenConfirmer.call(
   token,
+  action: Auth::TOKEN_ACTION_INVITE, # or some other action constant
   record_finder: ->(id, claims) { find_record },
   callback: lambda { |record| do_something_with(record) }
 )

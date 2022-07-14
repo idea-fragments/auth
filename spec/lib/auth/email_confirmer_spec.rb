@@ -12,7 +12,10 @@ RSpec.describe Auth::EmailConfirmer do
 
   it "Calls service to confirm the token's validity" do
     expect(Auth::TokenConfirmer).to receive(:call).with(
-      token, record_finder: user_finder, callback: callback
+      token,
+      action: "email_confirmation",
+      record_finder: user_finder,
+      callback: callback
     )
     confirm_email
   end

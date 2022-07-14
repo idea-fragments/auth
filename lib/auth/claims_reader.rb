@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class Auth::ClaimsReader < Service
-  AlreadyUsedError = Class.new(StandardError)
-
   class ExpiredError < StandardError
     attr_reader :token
 
@@ -18,20 +16,27 @@ class Auth::ClaimsReader < Service
 
   def call
     ensure_token_not_blacklisted
-    claims = Jwt::Decoder.call(
-      token, exp_leeway: expiration_leeway, verify_sig: verify_sig
-    )
-    raise Auth::InvalidClaimsError unless claims.key?(:dat)
-
-    claims[:dat]
+    Jwt::Decoder.call(token, exp_leeway: expiration_leeway, verify_sig: verify_sig)
+      .tap(&method(:ensure_valid_token_action))
+      .tap(&method(:ensure_data_present))
+      .fetch(:dat)
   end
 
   private
 
   attr_accessor :expiration_leeway, :token, :verify_sig
 
+  def ensure_data_present(claims)
+    raise Auth::InvalidClaimsError unless claims.key?(:dat)
+  end
+
   def ensure_token_not_blacklisted
-    raise AlreadyUsedError if Auth::TokenBlacklist.contains?(token)
+    raise Auth::TokenAlreadyUsedError if Auth::TokenBlacklist.contains?(token)
+  end
+
+  def ensure_valid_token_action(claims)
+    raise Auth::InvalidTokenActionError unless
+      claims[:action] == Auth::TOKEN_ACTION_AUTHENTICATION
   end
 
   def initialize(token, expiration_leeway, verify_sig)

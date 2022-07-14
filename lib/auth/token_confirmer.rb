@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 class Auth::TokenConfirmer < Service
-  def self.call(token, record_finder:, callback:)
-    new(token, record_finder, callback).call
+  def self.call(token, action:, record_finder:, callback:)
+    new(token, action, record_finder, callback).call
   end
 
   def call
@@ -14,7 +14,7 @@ class Auth::TokenConfirmer < Service
 
   private
 
-  attr_accessor :callback, :record_finder, :token
+  attr_accessor :action, :callback, :record_finder, :token
 
   def blacklist_token
     Auth::TokenBlacklistWriter.call(token, Jwt::TokenTtlCalculator.call(token))
@@ -23,7 +23,9 @@ class Auth::TokenConfirmer < Service
   def claims
     # leeway added so we can still have the signature verified,
     # but not have decoder blow up since we need the user data
-    claims = Jwt::Decoder.call(token, exp_leeway: TimeHelper.days(365))[:dat]
+    claims = Jwt::Decoder.call(token, exp_leeway: TimeHelper.days(365))
+      .tap(&method(:ensure_valid_token_action))
+      .fetch(:dat)
 
     [claims[:id], claims.except(:id)]
   end
@@ -37,7 +39,13 @@ class Auth::TokenConfirmer < Service
     raise Auth::TokenExpiredError if ttl <= 0
   end
 
-  def initialize(token, record_finder, callback)
+  def ensure_valid_token_action(claims)
+    raise Auth::InvalidTokenActionError unless
+      claims[:action] == action
+  end
+
+  def initialize(token, action, record_finder, callback)
+    self.action = action
     self.callback = callback
     self.record_finder = record_finder
     self.token = token
