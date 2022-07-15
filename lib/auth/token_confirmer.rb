@@ -17,7 +17,7 @@ class Auth::TokenConfirmer < Service
   attr_accessor :action, :callback, :record_finder, :token
 
   def blacklist_token
-    Auth::TokenBlacklistWriter.call(token, Jwt::TokenTtlCalculator.call(token))
+    Auth::TokenBlacklistWriter.call(token)
   end
 
   def claims

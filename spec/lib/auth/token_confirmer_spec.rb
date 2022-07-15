@@ -19,10 +19,10 @@ RSpec.describe Auth::TokenConfirmer do
     Timecop.freeze
 
     expect(Jwt::TokenTtlCalculator).to receive(:call)
-      .with(token).and_return(token_ttl).exactly(2).times
+      .with(token).and_return(token_ttl)
 
     expect(Auth::TokenBlacklistWriter).to receive(:call)
-      .with(token, token_ttl)
+      .with(token)
 
     expect(record_finder).to receive(:call)
       .with(record.id, other_claims)
