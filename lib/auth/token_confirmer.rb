@@ -23,7 +23,7 @@ class Auth::TokenConfirmer < Service
   def claims
     # leeway added so we can still have the signature verified,
     # but not have decoder blow up since we need the user data
-    @claims ||=  begin
+    @claims ||= begin
       claims = Jwt::Decoder.call(token, exp_leeway: TimeHelper.days(365))
         .tap(&method(:ensure_valid_token_action))
         .fetch(:dat)
