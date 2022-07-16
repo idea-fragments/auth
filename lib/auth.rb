@@ -8,6 +8,7 @@ module Auth
   class InvalidClaimsError < StandardError; end
   class InvalidTokenActionError < StandardError; end
   class TokenAlreadyUsedError < StandardError; end
+  class UserEmailAlreadyConfirmedError < StandardError; end
   class TokenExpiredError < StandardError; end
 
   TOKEN_ACTION_AUTHENTICATION = "authentication"

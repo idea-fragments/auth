@@ -7,7 +7,7 @@ class Auth::EmailConfirmer
       action: Auth::TOKEN_ACTION_EMAIL_CONFIRMATION,
       record_finder: user_finder,
       callback: lambda do |user|
-        raise Auth::TokenAlreadyUsedError if user.email_confirmed?
+        raise Auth::UserEmailAlreadyConfirmedError if user.email_confirmed?
         callback.call(user)
       end
     )

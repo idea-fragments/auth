@@ -30,7 +30,7 @@ RSpec.describe Auth::EmailConfirmer do
       allow(user).to receive(:email_confirmed?).and_return true
 
       expect { confirm_email }
-        .to raise_error(Auth::TokenAlreadyUsedError)
+        .to raise_error(Auth::UserEmailAlreadyConfirmedError)
     end
   end
 end
