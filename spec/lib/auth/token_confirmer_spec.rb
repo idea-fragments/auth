@@ -40,7 +40,9 @@ RSpec.describe Auth::TokenConfirmer do
     end
 
     it "raises expiration error" do
-      expect { confirm_token }.to raise_error(Auth::TokenExpiredError)
+      expect { confirm_token }.to raise_error(Auth::TokenExpiredError) do |error|
+        expect(error.record_id).to eq record.id
+      end
     end
   end
 

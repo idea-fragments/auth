@@ -9,7 +9,16 @@ module Auth
   class InvalidTokenActionError < StandardError; end
   class TokenAlreadyUsedError < StandardError; end
   class UserEmailAlreadyConfirmedError < StandardError; end
-  class TokenExpiredError < StandardError; end
+
+  class TokenExpiredError < StandardError
+    attr_accessor :other_claims, :record_id
+
+    def initialize(record_id, other_claims)
+      self.other_claims = other_claims
+      self.record_id = record_id
+      super("Token expired for user #{record_id}")
+    end
+  end
 
   TOKEN_ACTION_AUTHENTICATION = "authentication"
   TOKEN_ACTION_AUTHENTICATION_REFRESH = "authentication_refresh"
