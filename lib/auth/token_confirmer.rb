@@ -1,20 +1,22 @@
 # frozen_string_literal: true
 
 class Auth::TokenConfirmer < Service
-  def self.call(token, action:, record_finder:, callback:)
-    new(token, action, record_finder, callback).call
+  def self.call(token, action:, record_finder:, callback:, skip_blacklist: false)
+    new(token, action, record_finder, callback, skip_blacklist).call
   end
 
   def call
     ensure_token_not_blacklisted
     ensure_token_not_expired
     callback.call(record_finder.call(*claims))
+    return if skip_blacklist
+
     blacklist_token
   end
 
   private
 
-  attr_accessor :action, :callback, :record_finder, :token
+  attr_accessor :action, :callback, :record_finder, :skip_blacklist, :token
 
   def blacklist_token
     Auth::TokenBlacklistWriter.call(token)
@@ -46,10 +48,11 @@ class Auth::TokenConfirmer < Service
       claims[:action] == action
   end
 
-  def initialize(token, action, record_finder, callback)
+  def initialize(token, action, record_finder, callback, skip_blacklist)
     self.action = action
     self.callback = callback
     self.record_finder = record_finder
+    self.skip_blacklist = skip_blacklist
     self.token = token
   end
 end
