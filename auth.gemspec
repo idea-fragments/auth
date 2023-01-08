@@ -37,11 +37,11 @@ Gem::Specification.new do |spec|
   spec.add_dependency "rake", "~> 13.0"
 
   spec.add_development_dependency "mock_redis"
-  spec.add_development_dependency "redis", "~> 4.6.0"
-  spec.add_development_dependency "rspec", "~> 3.12.0"
-  spec.add_development_dependency "rubocop", "~> 1.21"
+  spec.add_development_dependency "redis"
+  spec.add_development_dependency "rspec"
+  spec.add_development_dependency "rubocop"
   spec.add_development_dependency "rubocop-rspec"
-  spec.add_development_dependency "timecop", "~> 0.9"
+  spec.add_development_dependency "timecop"
 
   # For more information and examples about making a new gem, check out our
   # guide at: https://bundler.io/guides/creating_gem.html
