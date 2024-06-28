@@ -29,12 +29,12 @@ module Auth
 
   class << self
     attr_accessor :access_token_ttl_minutes,
-                  :email_confirmation_ttl_days,
-                  :invite_ttl_days,
-                  :password_reset_ttl_days,
-                  :passwordless_login_ttl_minutes,
-                  :redis,
-                  :refresh_token_ttl_days
+      :email_confirmation_ttl_days,
+      :invite_ttl_days,
+      :password_reset_ttl_days,
+      :passwordless_login_ttl_minutes,
+      :redis,
+      :refresh_token_ttl_days
   end
 
   def self.access_token_expiration
