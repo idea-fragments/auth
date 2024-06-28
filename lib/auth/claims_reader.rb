@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Auth::ClaimsReader < Service
+class Auth::ClaimsReader < Auth::Service
   class ExpiredError < StandardError
     attr_reader :token
 

@@ -82,5 +82,4 @@ module Auth
   end
 end
 
-require_relative "./service"
 Dir["#{File.dirname(__FILE__)}/**/*.rb"].sort.each { |f| require f }

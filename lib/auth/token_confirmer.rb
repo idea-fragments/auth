@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Auth::TokenConfirmer < Service
+class Auth::TokenConfirmer < Auth::Service
   def self.call(token, action:, record_finder:, callback:, skip_blacklist: false)
     new(token, action, record_finder, callback, skip_blacklist).call
   end
