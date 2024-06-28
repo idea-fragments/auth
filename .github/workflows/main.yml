@@ -12,15 +12,12 @@ jobs:
           - '3.1.2'
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: ${{ matrix.ruby }}
         bundler-cache: true
-    - name: Build
-      run: |
-        bundle install
     - name: Test Suite
       run: bundle exec rake spec
     - name: Rubocop
