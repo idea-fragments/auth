@@ -18,6 +18,9 @@ jobs:
       with:
         ruby-version: ${{ matrix.ruby }}
         bundler-cache: true
+    - name: Build
+      run: |
+        bundle install
     - name: Test Suite
       run: bundle exec rake spec
     - name: Rubocop
