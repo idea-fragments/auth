@@ -1,25 +1,19 @@
 # frozen_string_literal: true
 
+require "active_support"
+require "active_support/core_ext"
+require "active_support/core_ext/enumerable"
 require "active_support/core_ext/hash/indifferent_access"
+require "active_support/core_ext/numeric/time"
 require "bundler/setup"
 require "idea_fragments_jwt"
 
 module Auth
-  class InvalidClaimsError < StandardError; end
+  class ConfigurationError < StandardError; end
   class InvalidTokenActionError < StandardError; end
+  class NoJwtExpirationError < StandardError; end
   class TokenAlreadyUsedError < StandardError; end
   class UserEmailAlreadyConfirmedError < StandardError; end
-
-  class TokenExpiredError < StandardError
-    attr_accessor :other_claims, :record_id
-
-    def initialize(record_id, other_claims)
-      self.other_claims = other_claims
-      self.record_id = record_id
-      super("Token expired for user #{record_id}")
-    end
-  end
-
   TOKEN_ACTION_AUTHENTICATION = "authentication"
   TOKEN_ACTION_AUTHENTICATION_REFRESH = "authentication_refresh"
   TOKEN_ACTION_EMAIL_CONFIRMATION = "email_confirmation"
@@ -38,7 +32,7 @@ module Auth
   end
 
   def self.access_token_expiration
-    TimeHelper.add_minutes(access_token_ttl_minutes)
+    access_token_ttl_minutes.minutes.from_now
   end
 
   def self.blacklist_key_for_token(token)
@@ -46,11 +40,11 @@ module Auth
   end
 
   def self.email_confirmation_expiration
-    TimeHelper.add_days(email_confirmation_ttl_days)
+    email_confirmation_ttl_days.days.from_now
   end
 
   def self.invite_expiration
-    TimeHelper.add_days(invite_ttl_days)
+    invite_ttl_days.days.from_now
   end
 
   def self.jwt_secret
@@ -70,15 +64,32 @@ module Auth
   end
 
   def self.password_reset_expiration
-    TimeHelper.add_days(password_reset_ttl_days)
+    password_reset_ttl_days.days.from_now
   end
 
   def self.passwordless_login_expiration
-    TimeHelper.add_minutes(passwordless_login_ttl_minutes)
+    passwordless_login_ttl_minutes.minutes.from_now
   end
 
   def self.refresh_token_expiration
-    TimeHelper.add_days(refresh_token_ttl_days)
+    refresh_token_ttl_days.days.from_now
+  end
+
+  REQUIRED_CONFIGURATION = [
+    :access_token_ttl_minutes,
+    :jwt_secret,
+    :jwt_signing_algorithm,
+    :password_reset_ttl_days,
+    :passwordless_login_ttl_minutes,
+    :redis,
+    :refresh_token_ttl_days,
+  ].freeze
+
+  def self.validate_configuration!
+    missing = REQUIRED_CONFIGURATION.select { |field| public_send(field).nil? }
+    return if missing.empty?
+
+    raise ConfigurationError, "Auth is missing required configuration: #{missing.join(", ")}"
   end
 end
 

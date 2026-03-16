@@ -1,15 +1,12 @@
 # frozen_string_literal: true
 
 class Auth::EmailConfirmer
-  def self.call(token, user_finder:, callback:)
-    Auth::TokenConfirmer.call(
-      token,
+  def self.call(token:, user_finder:)
+    claims = Auth::TokenConfirmer.call(
       action: Auth::TOKEN_ACTION_EMAIL_CONFIRMATION,
-      record_finder: user_finder,
-      callback: lambda do |user|
-        raise Auth::UserEmailAlreadyConfirmedError if user.email_confirmed?
-        callback.call(user)
-      end
+      token:,
     )
+    user_data = user_finder.call(claims:)
+    raise Auth::UserEmailAlreadyConfirmedError if user_data[:email_confirmed]
   end
 end

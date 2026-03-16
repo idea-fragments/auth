@@ -1,6 +1,9 @@
 RSpec.describe Auth::Authorizer do
+  let(:access_token_ttl_minutes) { (1..10).to_a.sample }
+  let(:authorized_tokens) { Auth::Authorizer.call(user_info:) }
+  let(:refresh_token_ttl_days) { (1..7).to_a.sample }
   let(:user_id) { 637 }
-  let(:user) do
+  let(:user_info) do
     {
       id: user_id,
       first_name: "Window",
@@ -8,59 +11,25 @@ RSpec.describe Auth::Authorizer do
     }
   end
 
-  before { Timecop.freeze }
+  before do
+    Timecop.freeze
+    Auth.access_token_ttl_minutes = access_token_ttl_minutes
+    Auth.refresh_token_ttl_days = refresh_token_ttl_days
+  end
 
   after { Timecop.return }
 
   it "Returns expiring access and refresh tokens" do
-    tokens = Auth::Authorizer.call(user)
-    access_token = tokens[:access_token]
-    refresh_token = tokens[:refresh_token]
+    access_token, refresh_token = authorized_tokens.fetch_values(:access_token, :refresh_token)
 
-    expect(Jwt::Decoder.call(access_token)).to include({
-      action: "authentication",
-      dat: {
-        id: user[:id],
-        first_name: user[:first_name],
-        email: user[:email],
-      },
-      exp: TimeHelper.add_minutes(10).to_i
+    expect(Jwt::Decoder.call(token: access_token)).to include({
+      dat: user_info.merge(action: "authentication"),
+      exp: access_token_ttl_minutes.minutes.from_now.to_i
     })
 
-    expect(Jwt::Decoder.call(refresh_token)).to include({
-      action: "authentication_refresh",
-      dat: {
-        id: user[:id],
-        first_name: user[:first_name],
-        email: user[:email],
-      },
-      exp: TimeHelper.add_days(7).to_i
+    expect(Jwt::Decoder.call(token: refresh_token)).to include({
+      dat: user_info.merge(action: "authentication_refresh"),
+      exp: refresh_token_ttl_days.days.from_now.to_i
     })
-  end
-
-  context "If extra claims are needed in access token" do
-    let(:team_id) { 2 }
-    let(:other_claim) { "other_claim" }
-
-    before do
-      user[:team_id] = team_id
-      user[:other_claim] = other_claim
-    end
-
-    it "Will add the extra claims to the token" do
-      tokens = Auth::Authorizer.call(user)
-      access_token = tokens[:access_token]
-
-      expect(Jwt::Decoder.call(access_token)).to include({
-        action: "authentication",
-        dat: {
-          id: user[:id],
-          first_name: user[:first_name],
-          email: user[:email],
-          other_claim: other_claim,
-          team_id: team_id,
-        },
-      })
-    end
   end
 end

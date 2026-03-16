@@ -1,4 +1,5 @@
 RSpec.describe Auth::PasswordResetTokenCreator do
+  let!(:token) { described_class.call(user_id:) }
   let(:user_id) { 9993 }
 
   before { Timecop.freeze }
@@ -6,11 +7,10 @@ RSpec.describe Auth::PasswordResetTokenCreator do
   after { Timecop.return }
 
   it "Returns an expiring token for resetting a password" do
-    expect(Jwt::Decoder.call(described_class.call(user_id)))
+    expect(Jwt::Decoder.call(token:))
       .to include({
-        action: "password_reset",
-        dat: { id: 9993 },
-        exp: TimeHelper.add_days(2).to_i
+        dat: { user_id: }.merge(action: "password_reset"),
+        exp: 2.days.from_now.to_i
       })
   end
 end
