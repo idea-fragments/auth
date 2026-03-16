@@ -7,11 +7,10 @@ RSpec.describe Auth::EmailTokenCreator do
   after { Timecop.return }
 
   it "Returns expiring email confirmation token" do
-    expect(Jwt::Decoder.call(token: described_class.call(id, email)))
+    expect(Jwt::Decoder.call(token: described_class.call(email: email, user_id: id)))
       .to include({
-        action: "email_confirmation",
-        dat: { id: id, email: email },
-        exp: TimeHelper.add_days(2).to_i
+        dat: { email:, user_id: id }.merge(action: "email_confirmation"),
+        exp: 2.days.from_now.to_i
       })
   end
 end

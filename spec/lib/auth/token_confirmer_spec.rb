@@ -16,6 +16,7 @@ RSpec.describe Auth::TokenConfirmer do
     Timecop.freeze
     allow(Auth::TokenBlacklistWriter).to receive(:call)
   end
+
   after { Timecop.return }
 
   it "Confirms record and blacklists the record token" do
@@ -66,6 +67,7 @@ RSpec.describe Auth::TokenConfirmer do
 
   context "When expiration_leeway is provided" do
     let(:expiration_leeway) { 1.day }
+
     before { other_params.merge!(expiration_leeway:) }
 
     it "Allows decoding within the leeway window" do

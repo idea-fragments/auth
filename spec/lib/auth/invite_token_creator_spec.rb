@@ -9,13 +9,12 @@ RSpec.describe Auth::InviteTokenCreator do
 
   it "Returns expiring email confirmation token" do
     token = Auth::InviteTokenCreator.call(
-      invite_id, team_id: team_id, email: email
+      invite_id: invite_id, team_id: team_id, email: email
     )
 
     expect(Jwt::Decoder.call(token:)).to include({
-      action: "invite",
-      dat: { email: email, id: invite_id, team_id: team_id },
-      exp: TimeHelper.add_days(7).to_i
+      dat: { email:, invite_id:, team_id: }.merge(action: "invite"),
+      exp: 7.days.from_now.to_i
     })
   end
 end

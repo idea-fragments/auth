@@ -6,7 +6,7 @@ class Auth::TokenBlacklistWriter < Auth::Service
   end
 
   def call
-    ttl = Jwt::TokenTtlCalculator.call(token)
+    ttl = Jwt::TokenTtlCalculator.call(token:)
 
     Auth.redis.set(
       Auth.blacklist_key_for_token(token), token, ex: ttl

@@ -5,10 +5,9 @@ class Auth::TokenConfirmer < Auth::Service
 
   def self.call(
     action:,
-    expiration_leeway: nil,
+    token:, expiration_leeway: nil,
     skip_blacklist: false,
-    skip_expiration_check: false,
-    token:
+    skip_expiration_check: false
   )
     new(
       action:,
@@ -57,11 +56,10 @@ class Auth::TokenConfirmer < Auth::Service
   end
 
   def ensure_valid_expiration_params
-    if expiration_leeway.present? && skip_expiration_check
-      raise InvalidArgumentsError.new(
-        "Cannot provide both expiration_leeway and skip_expiration_check"
-      )
-    end
+    return unless expiration_leeway.present? && skip_expiration_check
+    raise InvalidArgumentsError.new(
+      "Cannot provide both expiration_leeway and skip_expiration_check"
+    )
   end
 
   def ensure_valid_token_action

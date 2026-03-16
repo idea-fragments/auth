@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 require "active_support"
-require 'active_support/core_ext'
-require 'active_support/core_ext/enumerable'
+require "active_support/core_ext"
+require "active_support/core_ext/enumerable"
 require "active_support/core_ext/hash/indifferent_access"
 require "active_support/core_ext/numeric/time"
 require "bundler/setup"
@@ -89,7 +89,7 @@ module Auth
     missing = REQUIRED_CONFIGURATION.select { |field| public_send(field).nil? }
     return if missing.empty?
 
-    raise ConfigurationError, "Auth is missing required configuration: #{missing.join(', ')}"
+    raise ConfigurationError, "Auth is missing required configuration: #{missing.join(", ")}"
   end
 end
 

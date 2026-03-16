@@ -6,7 +6,7 @@ RSpec.describe Auth do
   after { Timecop.return }
 
   it "has a version number" do
-    expect(Auth::VERSION).not_to be nil
+    expect(Auth::VERSION).not_to be_nil
   end
 
   [

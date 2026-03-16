@@ -5,13 +5,13 @@ RSpec.describe Auth::TokenBlacklist do
 
   before do
     Timecop.freeze
-    expect(Jwt::TokenTtlCalculator).to receive(:call).with(token)
+    expect(Jwt::TokenTtlCalculator).to receive(:call).with(token:)
       .and_return duration
     Auth::TokenBlacklistWriter.call(token:)
   end
 
   it "Confirms that token is in Blacklist" do
-    expect(Auth::TokenBlacklist.contains?(token:)).to eq true
+    expect(Auth::TokenBlacklist.contains?(token:)).to be true
   end
 
   context "When duration has passed" do
@@ -20,7 +20,7 @@ RSpec.describe Auth::TokenBlacklist do
     after { Timecop.return }
 
     it "Will not blacklist token" do
-      expect(Auth::TokenBlacklist.contains?(token:)).to eq false
+      expect(Auth::TokenBlacklist.contains?(token:)).to be false
     end
   end
 end
