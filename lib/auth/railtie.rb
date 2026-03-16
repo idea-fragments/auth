@@ -2,7 +2,7 @@
 
 if defined?(Rails::Railtie)
   class Auth::Railtie < Rails::Railtie
-    initializer "rca_auth.validate_configuration" do
+    config.after_initialize do
       Auth.validate_configuration!
     end
   end
