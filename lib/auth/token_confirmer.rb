@@ -1,58 +1,80 @@
 # frozen_string_literal: true
 
 class Auth::TokenConfirmer < Auth::Service
-  def self.call(token, action:, record_finder:, callback:, skip_blacklist: false)
-    new(token, action, record_finder, callback, skip_blacklist).call
+  class InvalidArgumentsError < StandardError; end
+
+  def self.call(
+    action:,
+    expiration_leeway: nil,
+    skip_blacklist: false,
+    skip_expiration_check: false,
+    token:
+  )
+    new(
+      action:,
+      expiration_leeway:,
+      skip_blacklist:,
+      skip_expiration_check:,
+      token:
+    ).call
   end
 
   def call
+    ensure_valid_expiration_params
     ensure_token_not_blacklisted
-    ensure_token_not_expired
-    callback.call(record_finder.call(*claims))
-    return if skip_blacklist
 
+    decode_token
+    ensure_valid_token_action
     blacklist_token
+    claims
   end
 
   private
 
-  attr_accessor :action, :callback, :record_finder, :skip_blacklist, :token
+  attr_accessor :action,
+    :claims,
+    :expiration_leeway,
+    :skip_blacklist,
+    :skip_expiration_check,
+    :token
 
   def blacklist_token
-    Auth::TokenBlacklistWriter.call(token)
+    return if skip_blacklist
+    Auth::TokenBlacklistWriter.call(token:)
   end
 
-  def claims
-    # leeway added so we can still have the signature verified,
-    # but not have decoder blow up since we need the user data
-    @claims ||= begin
-      claims = Jwt::Decoder.call(token, exp_leeway: TimeHelper.days(365))
-        .tap(&method(:ensure_valid_token_action))
-        .fetch(:dat)
+  def decode_token
+    exp_leeway = skip_expiration_check ?
+      365.days.to_i :
+      (expiration_leeway || 0).to_i
 
-      [claims[:id], claims.except(:id)]
-    end
+    self.claims = Jwt::Decoder.call(exp_leeway:, token:)
+      .fetch(:dat)
   end
 
   def ensure_token_not_blacklisted
-    raise Auth::TokenAlreadyUsedError if Auth::TokenBlacklist.contains?(token)
+    raise Auth::TokenAlreadyUsedError.new("action=#{action}") if Auth::TokenBlacklist.contains?(token:)
   end
 
-  def ensure_token_not_expired
-    ttl = Jwt::TokenTtlCalculator.call(token)
-    raise Auth::TokenExpiredError.new(*claims) if ttl <= 0
+  def ensure_valid_expiration_params
+    if expiration_leeway.present? && skip_expiration_check
+      raise InvalidArgumentsError.new(
+        "Cannot provide both expiration_leeway and skip_expiration_check"
+      )
+    end
   end
 
-  def ensure_valid_token_action(claims)
-    raise Auth::InvalidTokenActionError unless
-      claims[:action] == action
+  def ensure_valid_token_action
+    return if claims[:action] == action
+    raise Auth::InvalidTokenActionError
   end
 
-  def initialize(token, action, record_finder, callback, skip_blacklist)
+  def initialize(action:, expiration_leeway:, skip_blacklist:, skip_expiration_check:, token:)
+    super()
     self.action = action
-    self.callback = callback
-    self.record_finder = record_finder
+    self.expiration_leeway = expiration_leeway
     self.skip_blacklist = skip_blacklist
+    self.skip_expiration_check = skip_expiration_check
     self.token = token
   end
 end

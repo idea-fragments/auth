@@ -12,7 +12,7 @@ RSpec.describe Auth::InviteTokenCreator do
       invite_id, team_id: team_id, email: email
     )
 
-    expect(Jwt::Decoder.call(token)).to include({
+    expect(Jwt::Decoder.call(token:)).to include({
       action: "invite",
       dat: { email: email, id: invite_id, team_id: team_id },
       exp: TimeHelper.add_days(7).to_i

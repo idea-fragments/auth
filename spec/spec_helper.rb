@@ -28,6 +28,8 @@ RSpec.configure do |config|
   end
 
   config.before do
+    Auth.redis = MockRedis.new
+    Auth.redis.flushdb
     Auth.access_token_ttl_minutes = 10
     Auth.email_confirmation_ttl_days = 2
     Auth.invite_ttl_days = 7

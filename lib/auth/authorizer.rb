@@ -1,19 +1,36 @@
 # frozen_string_literal: true
 
-class Auth::Authorizer
-  def self.call(user_info = {})
-    access_token = Jwt::Encoder.call({
+class Auth::Authorizer < Auth::Service
+  def self.call(user_info: {})
+    new(user_info:).call
+  end
+
+  def call
+    { access_token:, refresh_token: }
+  end
+
+  private
+
+  attr_accessor :user_info
+
+  def access_token
+    Auth::SecurityTokenCreator.call(
       action: Auth::TOKEN_ACTION_AUTHENTICATION,
-      dat: user_info,
-      exp: Auth.access_token_expiration.to_i,
-    })
+      claims: user_info,
+      expires_at: Auth.access_token_expiration
+    )
+  end
 
-    refresh_token = Jwt::Encoder.call({
+  def refresh_token
+    Auth::SecurityTokenCreator.call(
       action: Auth::TOKEN_ACTION_AUTHENTICATION_REFRESH,
-      dat: user_info,
-      exp: Auth.refresh_token_expiration.to_i
-    })
+      claims: user_info,
+      expires_at: Auth.refresh_token_expiration
+    )
+  end
 
-    { access_token: access_token, refresh_token: refresh_token }
+  def initialize(user_info:)
+    super()
+    self.user_info = user_info
   end
 end
